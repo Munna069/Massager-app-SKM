@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>স্মৃতি খেলা (ফল-গাছ-গাড়ি)</title>
+  <style>
+    body {
+      background: #d0f0c0;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 100px);
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .card {
+      width: 100px;
+      height: 100px;
+      background: #4fc3f7;
+      border-radius: 8px;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+      transition: 0.3s;
+    }
+    .card.flipped {
+      background-color: white;
+    }
+    .card.matched {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background: #00796b;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>স্মৃতি গেম: ফল, গাড়ি ও গাছ</h2>
+  <div class="grid" id="game-board"></div>
+  <button onclick="startGame()">আবার শুরু করুন</button>
+</div>
+
+<script>
+  const baseImages = [
+    'https://picsum.photos/seed/apple/100',
+    'https://picsum.photos/seed/car/100',
+    'https://picsum.photos/seed/tree/100',
+    'https://picsum.photos/seed/banana/100',
+    'https://picsum.photos/seed/orange/100',
+    'https://picsum.photos/seed/truck/100',
+    'https://picsum.photos/seed/flower/100',
+    'https://picsum.photos/seed/bike/100'
+  ];
+
+  let cardImages = [...baseImages, ...baseImages]; // double for pairs
+  let flippedCards = [];
+  let matched = 0;
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+
+  function createBoard() {
+    const board = document.getElementById("game-board");
+    board.innerHTML = "";
+    shuffle(cardImages);
+    flippedCards = [];
+    matched = 0;
+
+    cardImages.forEach((img, index) => {
+      const card = document.createElement("div");
+      card.classList.add("card");
+      card.dataset.image = img;
+      card.style.backgroundImage = 'url("https://via.placeholder.com/100?text=?")';
+      card.addEventListener("click", () => flipCard(card));
+      board.appendChild(card);
+    });
+  }
+
+  function flipCard(card) {
+    if (card.classList.contains("flipped") || flippedCards.length === 2) return;
+
+    card.classList.add("flipped");
+    card.style.backgroundImage = `url('${card.dataset.image}')`;
+    flippedCards.push(card);
+
+    if (flippedCards.length === 2) checkMatch();
+  }
+
+  function checkMatch() {
+    const [first, second] = flippedCards;
+
+    if (first.dataset.image === second.dataset.image) {
+      first.classList.add("matched");
+      second.classList.add("matched");
+      matched += 2;
+      flippedCards = [];
+
+      if (matched === cardImages.length) {
+        setTimeout(() => alert("অভিনন্দন! আপনি সব মিলিয়েছেন!"), 300);
+      }
+    } else {
+      setTimeout(() => {
+        first.classList.remove("flipped");
+        second.classList.remove("flipped");
+        first.style.backgroundImage = 'url("https://via.placeholder.com/100?text=?")';
+        second.style.backgroundImage = 'url("https://via.placeholder.com/100?text=?")';
+        flippedCards = [];
+      }, 1000);
+    }
+  }
+
+  function startGame() {
+    cardImages = [...baseImages, ...baseImages];
+    createBoard();
+  }
+
+  startGame();
+</script>
+
+</body>
+</html>
